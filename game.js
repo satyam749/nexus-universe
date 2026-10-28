@@ -5,7 +5,7 @@
   const $ = id => document.getElementById(id);
   const startOverlay = $("startOverlay"), endOverlay = $("endOverlay"), pauseShade = $("pauseShade"), hud = $("hud");
   const keys = new Set();
-  const touch = {left:false,right:false,up:false,down:false};
+  const touchTarget = {active:false,x:0,y:0};
   let width=0,height=0,dpr=1,raf=0,last=0,elapsed=0,score=0,lives=3,playing=false,paused=false,ended=false;
   let player,orbs=[],meteors=[],particles=[],stars=[],spawnOrb=0,spawnMeteor=0,best=Number(localStorage.getItem("nexusBest")||0),soundOn=false,audio=null;
   $("bestScore").textContent=String(best).padStart(4,"0");
@@ -22,7 +22,7 @@
   }
   function resetPlayer(){player={x:width/2,y:height*.72,r:12,speed:235,inv:0};}
   function resetGame(){
-    score=0;lives=3;elapsed=0;orbs=[];meteors=[];particles=[];spawnOrb=.2;spawnMeteor=1.2;paused=false;ended=false;playing=true;last=performance.now();resetPlayer();
+    score=0;lives=3;elapsed=0;orbs=[];meteors=[];particles=[];spawnOrb=.2;spawnMeteor=1.2;paused=false;ended=false;playing=true;touchTarget.active=false;last=performance.now();resetPlayer();
     startOverlay.classList.add("hidden");endOverlay.classList.add("hidden");pauseShade.classList.add("hidden");hud.classList.remove("hidden");
     $("statusText").textContent="मिशन चल रहा है";updateHud();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
   }
@@ -35,8 +35,16 @@
   function spawnMeteorNow(){const r=rand(10,17);meteors.push({x:rand(r,width-r),y:-r,r,vx:rand(-35,35),speed:rand(100,155)+elapsed*2.1,rot:rand(0,6.28),spin:rand(-2,2)});}
   function move(dt){
     elapsed+=dt;player.inv=Math.max(0,player.inv-dt);
-    let dx=0,dy=0;if(keys.has("ArrowLeft")||keys.has("a")||touch.left)dx--;if(keys.has("ArrowRight")||keys.has("d")||touch.right)dx++;if(keys.has("ArrowUp")||keys.has("w")||touch.up)dy--;if(keys.has("ArrowDown")||keys.has("s")||touch.down)dy++;
-    if(dx&&dy){dx*=.707;dy*=.707;}player.x=Math.max(player.r,Math.min(width-player.r,player.x+dx*player.speed*dt));player.y=Math.max(player.r,Math.min(height-player.r,player.y+dy*player.speed*dt));
+    let dx=0,dy=0;
+    if(touchTarget.active){
+      const tx=Math.max(player.r,Math.min(width-player.r,touchTarget.x));
+      const ty=Math.max(player.r,Math.min(height-player.r,touchTarget.y));
+      const vx=tx-player.x,vy=ty-player.y,dist=Math.hypot(vx,vy);
+      if(dist<4){player.x=tx;player.y=ty;}else{const step=Math.min(dist,player.speed*1.45*dt);player.x+=vx/dist*step;player.y+=vy/dist*step;}
+    }else{
+      if(keys.has("ArrowLeft")||keys.has("a"))dx--;if(keys.has("ArrowRight")||keys.has("d"))dx++;if(keys.has("ArrowUp")||keys.has("w"))dy--;if(keys.has("ArrowDown")||keys.has("s"))dy++;
+      if(dx&&dy){dx*=.707;dy*=.707;}player.x=Math.max(player.r,Math.min(width-player.r,player.x+dx*player.speed*dt));player.y=Math.max(player.r,Math.min(height-player.r,player.y+dy*player.speed*dt));
+    }
     spawnOrb-=dt;spawnMeteor-=dt;if(spawnOrb<=0){spawnOrbNow();spawnOrb=Math.max(.45,1.05-elapsed*.003);}if(spawnMeteor<=0){spawnMeteorNow();spawnMeteor=Math.max(.42,1.55-elapsed*.004);}
     for(let i=orbs.length-1;i>=0;i--){const o=orbs[i];o.y+=o.speed*dt;o.phase+=dt*4;if(Math.hypot(o.x-player.x,o.y-player.y)<o.r+player.r){score+=10;burst(o.x,o.y,"#69edff",10);orbs.splice(i,1);playTone(740,.08);updateHud();continue;}if(o.y>height+20)orbs.splice(i,1);}
     for(let i=meteors.length-1;i>=0;i--){const m=meteors[i];m.x+=m.vx*dt;m.y+=m.speed*dt;m.rot+=m.spin*dt;if(m.x<m.r||m.x>width-m.r)m.vx*=-1;if(Math.hypot(m.x-player.x,m.y-player.y)<m.r+player.r*.72&&player.inv<=0){lives--;player.inv=1.15;burst(player.x,player.y,"#ff647f",20);playTone(150,.18,"sawtooth");updateHud();meteors.splice(i,1);if(lives<=0){finish();return; }continue;}if(m.y>height+30)meteors.splice(i,1);}
@@ -66,9 +74,21 @@
   function finish(){playing=false;ended=true;cancelAnimationFrame(raf);hud.classList.add("hidden");$("statusText").textContent="मिशन समाप्त";$("endTitle").textContent=score>=best&&score>0?"नया रिकॉर्ड!":"अच्छा खेला!";$("endMessage").textContent="तुम्हारा स्कोर "+score+" है। "+(score>=best?"तुमने अपना सर्वश्रेष्ठ प्रदर्शन किया।":"फिर कोशिश करो और रिकॉर्ड तोड़ो।");if(score>best){best=score;localStorage.setItem("nexusBest",String(best));$("bestScore").textContent=String(best).padStart(4,"0");$("bestInline").textContent="सर्वश्रेष्ठ: "+best;}endOverlay.classList.remove("hidden");draw();}
   function pause(){if(!playing)return;paused=!paused;if(paused){cancelAnimationFrame(raf);pauseShade.classList.remove("hidden");$("statusText").textContent="मिशन रुका है";}else{pauseShade.classList.add("hidden");$("statusText").textContent="मिशन चल रहा है";last=performance.now();raf=requestAnimationFrame(loop);}}
   window.addEventListener("keydown",e=>{const k=e.key.toLowerCase();if(["arrowleft","arrowright","arrowup","arrowdown"," "].includes(k))e.preventDefault();keys.add(k);if(k==="escape"||k==="p")pause();if(k===" "&&!playing&&!ended)resetGame();});
-  window.addEventListener("keyup",e=>keys.delete(e.key.toLowerCase()));window.addEventListener("blur",()=>{keys.clear();if(playing&&!paused)pause();});
+  window.addEventListener("keyup",e=>keys.delete(e.key.toLowerCase()));window.addEventListener("blur",()=>{keys.clear();touchTarget.active=false;if(playing&&!paused)pause();});
   $("startBtn").addEventListener("click",resetGame);$("restartBtn").addEventListener("click",resetGame);$("pauseBtn").addEventListener("click",pause);$("resumeBtn").addEventListener("click",pause);
-  document.querySelectorAll("[data-dir]").forEach(btn=>{const dir=btn.dataset.dir;const down=e=>{e.preventDefault();touch[dir]=true;};const up=e=>{e.preventDefault();touch[dir]=false;};btn.addEventListener("pointerdown",down);btn.addEventListener("pointerup",up);btn.addEventListener("pointercancel",up);btn.addEventListener("pointerleave",up);});
+  function aimFromPointer(e){
+    const rect=canvas.getBoundingClientRect();
+    touchTarget.x=e.clientX-rect.left;
+    touchTarget.y=e.clientY-rect.top;
+  }
+  canvas.addEventListener("pointerdown",e=>{
+    if(!playing||paused)return;
+    e.preventDefault();touchTarget.active=true;aimFromPointer(e);
+    try{canvas.setPointerCapture(e.pointerId);}catch(_){}
+  });
+  canvas.addEventListener("pointermove",e=>{if(touchTarget.active){e.preventDefault();aimFromPointer(e);}});
+  const stopTouch=()=>{touchTarget.active=false;};
+  canvas.addEventListener("pointerup",stopTouch);canvas.addEventListener("pointercancel",stopTouch);canvas.addEventListener("lostpointercapture",stopTouch);
   $("soundBtn").addEventListener("click",()=>{soundOn=!soundOn;$("soundBtn").innerHTML=(soundOn?"♫":"♩")+" <span>"+(soundOn?"ध्वनि चालू":"ध्वनि बंद")+"</span>";playTone(600,.06);});
   window.addEventListener("resize",resize);resize();
 })();

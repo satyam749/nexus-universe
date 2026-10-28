@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b18">
+  <title>NEXUS UNIVERSE — 3D Arcade</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Nexus Universe Home"><span class="brand-mark">✦</span><span>NEXUS<span class="brand-light"> UNIVERSE</span></span></a>
+    <nav><a href="#play">खेलें</a><a href="#how">कैसे खेलें</a><a href="#records">रिकॉर्ड</a></nav>
+    <button class="sound-btn" id="soundBtn" aria-label="ध्वनि चालू या बंद करें">♫ <span>ध्वनि</span></button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="pulse"></span> YOUR NEXT DIGITAL FRONTIER</div>
+        <h1>एक नई दुनिया।<br><span>तुम्हारे नियम।</span></h1>
+        <p>नियोन ब्रह्मांड में प्रवेश करो, ऊर्जा गोले इकट्ठा करो और अपना सर्वश्रेष्ठ स्कोर बनाओ। यह तुम्हारा मिशन है।</p>
+        <div class="hero-actions">
+          <a class="primary-btn" href="#play">मिशन शुरू करें <span>↗</span></a>
+          <a class="text-btn" href="#how">कैसे खेलें <span>↓</span></a>
+        </div>
+        <div class="hero-stats">
+          <div><strong>∞</strong><small>नई कोशिशें</small></div>
+          <div><strong>3D</strong><small>आर्केड अनुभव</small></div>
+          <div><strong>100%</strong><small>ब्राउज़र गेम</small></div>
+        </div>
+      </div>
+      <div class="hero-art" aria-label="नियोन ग्रह का दृश्य">
+        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+        <div class="planet"><div class="planet-shine"></div><div class="planet-ring"></div></div>
+        <div class="floating-card card-top"><span class="tiny-dot"></span> SYSTEM ONLINE <b>●</b></div>
+        <div class="floating-card card-bottom"><span>✧</span><div><b>UNKNOWN SECTOR</b><small>Exploration available</small></div></div>
+        <span class="star star-one">✦</span><span class="star star-two">✧</span><span class="star star-three">·</span>
+      </div>
+    </section>
+
+    <section class="game-section" id="play">
+      <div class="section-heading"><div><div class="eyebrow">LIVE ARCADE</div><h2>ऑर्बिट रनर <span>01</span></h2></div><p>ऊर्जा गोले पकड़ो। लाल उल्काओं से बचो।</p></div>
+      <div class="game-shell">
+        <div class="game-topline"><div class="game-status"><span class="live-dot"></span><span id="statusText">मिशन तैयार</span></div><div class="game-controls-label">WASD / ← ↑ → ↓ <span>•</span> मोबाइल टच</div></div>
+        <div class="canvas-wrap">
+          <canvas id="gameCanvas" aria-label="ऑर्बिट रनर गेम क्षेत्र"></canvas>
+          <div class="overlay" id="startOverlay">
+            <div class="overlay-icon">✦</div><p class="overlay-kicker">MISSION 001</p><h3>ऑर्बिट में प्रवेश करो</h3><p>नीले ऊर्जा गोले इकट्ठा करो और उल्काओं से बचो।</p><button class="primary-btn" id="startBtn">गेम शुरू करें <span>→</span></button>
+          </div>
+          <div class="overlay hidden" id="endOverlay">
+            <div class="overlay-icon">✧</div><p class="overlay-kicker">MISSION COMPLETE</p><h3 id="endTitle">अच्छा खेला!</h3><p id="endMessage">तुम्हारा मिशन समाप्त हुआ।</p><button class="primary-btn" id="restartBtn">फिर से खेलें <span>↻</span></button>
+          </div>
+          <div class="hud hidden" id="hud"><div><small>स्कोर</small><b id="scoreValue">0000</b></div><div><small>ऊर्जा</small><b id="livesValue">♥ ♥ ♥</b></div><button id="pauseBtn" aria-label="गेम रोकें">Ⅱ</button></div>
+          <div class="touch-controls" id="touchControls">
+            <button data-dir="left" aria-label="बाएँ">←</button><div><button data-dir="up" aria-label="ऊपर">↑</button><button data-dir="down" aria-label="नीचे">↓</button></div><button data-dir="right" aria-label="दाएँ">→</button>
+          </div>
+          <div class="pause-shade hidden" id="pauseShade"><div><h3>गेम रुका हुआ है</h3><button class="primary-btn" id="resumeBtn">जारी रखें</button></div></div>
+        </div>
+        <div class="game-bottomline"><span><i class="legend-player"></i> तुम्हारा जहाज़</span><span><i class="legend-orb"></i> ऊर्जा +10</span><span><i class="legend-meteor"></i> उल्का से बचें</span><span id="bestInline">सर्वश्रेष्ठ: 0</span></div>
+      </div>
+    </section>
+
+    <section class="features" id="how">
+      <div class="section-heading"><div><div class="eyebrow">QUICK BRIEFING</div><h2>मिशन के नियम</h2></div><p>सीखना आसान, मास्टर करना चुनौतीपूर्ण।</p></div>
+      <div class="feature-grid">
+        <article class="feature-card"><div class="feature-icon cyan">⌁</div><h3>चलते रहो</h3><p>कीबोर्ड के WASD या एरो बटन से अपने जहाज़ को चारों दिशाओं में चलाओ। मोबाइल पर स्क्रीन के बटन इस्तेमाल करो।</p><span>01 / MOVEMENT</span></article>
+        <article class="feature-card"><div class="feature-icon purple">✧</div><h3>ऊर्जा जुटाओ</h3><p>चमकते नीले गोले पकड़ने पर 10 अंक मिलेंगे। लगातार खेलो और अपना रिकॉर्ड तोड़ो।</p><span>02 / COLLECT</span></article>
+        <article class="feature-card"><div class="feature-icon orange">✹</div><h3>उल्काओं से बचो</h3><p>लाल उल्काओं से टकराने पर ऊर्जा घटेगी। तीन टक्कर के बाद मिशन समाप्त हो जाएगा।</p><span>03 / SURVIVE</span></article>
+      </div>
+    </section>
+
+    <section class="records-section" id="records"><div><div class="eyebrow">YOUR PROGRESS</div><h2>तुम्हारा रिकॉर्ड</h2><p>तुम्हारा सर्वश्रेष्ठ स्कोर इसी ब्राउज़र में सेव रहता है।</p></div><div class="record-card"><span>PERSONAL BEST</span><strong id="bestScore">0000</strong><small>अगला रिकॉर्ड तुम्हारा हो सकता है।</small></div></section>
+  </main>
+
+  <footer><a class="brand" href="#"><span class="brand-mark">✦</span><span>NEXUS<span class="brand-light"> UNIVERSE</span></span></a><span>एक छोटा ब्रह्मांड, तुम्हारे ब्राउज़र में।</span><span>© 2026 NEXUS LAB</span></footer>
+  <script src="game.js"></script>
+</body>
+</html>
